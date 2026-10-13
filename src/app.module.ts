@@ -28,7 +28,6 @@ import { AiModule } from './ai/ai.module';
     AuthModule,
     UsersModule,
     ProductsModule,
-    ProductsModule,
     SalesModule,
     AiModule,
   ],
