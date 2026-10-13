@@ -31,4 +31,9 @@ export class CreateProductDto {
   @IsString()
   @IsOptional()
   category?: string;
+
+  //  NUEVO
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 }
