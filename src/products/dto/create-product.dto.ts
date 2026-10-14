@@ -32,7 +32,7 @@ export class CreateProductDto {
   @IsOptional()
   category?: string;
 
-  //  NUEVO
+  // 👇 NUEVO
   @IsString()
   @IsOptional()
   imageUrl?: string;

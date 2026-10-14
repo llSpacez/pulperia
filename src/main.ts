@@ -7,9 +7,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 👇 Detectar entorno
+  // 👇 Detectar entorno (producción vs local)
   const isProduction = process.env.NODE_ENV === 'production';
-  const uploadsPath = isProduction ? '/app/uploads' : join(__dirname, '..', 'uploads');
+  const uploadsPath = isProduction 
+    ? '/app/uploads' 
+    : join(__dirname, '..', 'uploads');
 
   console.log(`📁 Sirviendo archivos desde: ${uploadsPath}`);
 

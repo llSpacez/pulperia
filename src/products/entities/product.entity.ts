@@ -26,7 +26,7 @@ export class Product {
   @Column({ default: 'General' })
   category: string;
 
-  // 👇 NUEVO: Campo para la imagen
+  // 👇 NUEVA COLUMNA
   @Column({ type: 'text', nullable: true })
   imageUrl: string;
 
