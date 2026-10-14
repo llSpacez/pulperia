@@ -18,6 +18,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { existsSync, mkdirSync } from 'fs';
 
 @UseGuards(JwtAuthGuard)
 @Controller('products')
@@ -40,56 +41,47 @@ export class ProductsController {
   }
 
   // 👇 SUBIR IMAGEN
-  @Post('upload')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          // 👇 Detectar entorno
-          const isProduction = process.env.NODE_ENV === 'production';
-          const dest = isProduction 
-            ? '/app/uploads/products' 
-            : './uploads/products';
-          cb(null, dest);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `product-${uniqueSuffix}${ext}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-          return cb(new BadRequestException('Solo se permiten imágenes'), false);
+ @Post('upload')
+@UseInterceptors(
+  FileInterceptor('image', {
+    storage: diskStorage({
+      destination: (req, file, cb) => {
+        const isProduction = process.env.NODE_ENV === 'production';
+        const dest = isProduction
+          ? '/app/uploads/products'
+          : './uploads/products';
+        
+        // 👇 Verificar y crear la carpeta antes de guardar
+        if (!existsSync(dest)) {
+          mkdirSync(dest, { recursive: true });
+          console.log(`📁 Carpeta creada en runtime: ${dest}`);
         }
-        cb(null, true);
+        
+        cb(null, dest);
       },
-      limits: { fileSize: 5 * 1024 * 1024 },
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        cb(null, `product-${uniqueSuffix}${ext}`);
+      },
     }),
-  )
-  uploadImage(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('No se subió ningún archivo');
-    }
-
-    return {
-      imageUrl: `/uploads/products/${file.filename}`,
-      filename: file.filename,
-    };
+    fileFilter: (req, file, cb) => {
+      if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        return cb(new BadRequestException('Solo se permiten imágenes'), false);
+      }
+      cb(null, true);
+    },
+    limits: { fileSize: 5 * 1024 * 1024 },
+  }),
+)
+uploadImage(@UploadedFile() file: Express.Multer.File) {
+  if (!file) {
+    throw new BadRequestException('No se subió ningún archivo');
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
-  }
+  return {
+    imageUrl: `/uploads/products/${file.filename}`,
+    filename: file.filename,
+  };
+}
 }
