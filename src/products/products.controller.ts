@@ -47,7 +47,9 @@ export class ProductsController {
         destination: (req, file, cb) => {
           // 👇 Detectar entorno
           const isProduction = process.env.NODE_ENV === 'production';
-          const dest = isProduction ? '/app/uploads/products' : './uploads/products';
+          const dest = isProduction 
+            ? '/app/uploads/products' 
+            : './uploads/products';
           cb(null, dest);
         },
         filename: (req, file, cb) => {
