@@ -39,12 +39,17 @@ export class ProductsController {
     return this.productsService.findLowStock();
   }
 
-  // 👇 NUEVO: Endpoint para subir imagen
+  // 👇 SUBIR IMAGEN
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: './uploads/products',
+        destination: (req, file, cb) => {
+          // 👇 Detectar entorno
+          const isProduction = process.env.NODE_ENV === 'production';
+          const dest = isProduction ? '/app/uploads/products' : './uploads/products';
+          cb(null, dest);
+        },
         filename: (req, file, cb) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);

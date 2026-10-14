@@ -7,8 +7,14 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Servir imágenes estáticas
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  // 👇 Detectar entorno
+  const isProduction = process.env.NODE_ENV === 'production';
+  const uploadsPath = isProduction ? '/app/uploads' : join(__dirname, '..', 'uploads');
+
+  console.log(`📁 Sirviendo archivos desde: ${uploadsPath}`);
+
+  // Servir archivos estáticos
+  app.useStaticAssets(uploadsPath, {
     prefix: '/uploads/',
   });
 
@@ -31,6 +37,6 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Servidor: http://localhost:${port}/api`);
-  console.log(`📁 Imágenes: http://localhost:${port}/uploads/`);
+  console.log(`📁 Uploads: http://localhost:${port}/uploads/`);
 }
 bootstrap();
