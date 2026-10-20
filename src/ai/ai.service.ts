@@ -17,6 +17,30 @@ export class AiService {
     this.genAI = new GoogleGenerativeAI(apiKey || '');
   }
 
+  // ==================== FUNCIÓN DE REINTENTOS ====================
+  // Si Google devuelve un error 503 (saturado), espera y vuelve a intentar.
+  private async withRetry<T>(operation: () => Promise<T>, maxRetries = 3): Promise<T> {
+    let lastError: any;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error: any) {
+        lastError = error;
+        // Si no es un error 503, no reintentar, lanzar de inmediato
+        if (!error.message || !error.message.includes('503')) {
+          throw error;
+        }
+        
+        const waitTime = attempt * 2000; // Espera 2s, luego 4s, luego 6s
+        console.warn(`⚠️ Intento ${attempt} fallido por saturación (503). Reintentando en ${waitTime}ms...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+    }
+    throw lastError;
+  }
+
+  // ==================== GENERAR RECOMENDACIÓN ====================
+  
   async generateRecommendation() {
     try {
       const products = await this.productsService.findAll();
@@ -36,27 +60,29 @@ export class AiService {
 
       // 2. Crear el prompt
       const prompt = `
-      Eres un asistente experto en gestión de pulperías en Nicaragua.
-      Analiza los siguientes datos del negocio:
+Eres un asistente experto en gestión de pulperías en Nicaragua.
+Analiza los siguientes datos del negocio:
 
-      PRODUCTOS:
-      ${productsSummary}
+PRODUCTOS:
+${productsSummary}
 
-      VENTAS RECIENTES:
-      ${salesSummary}
+VENTAS RECIENTES:
+${salesSummary}
 
-      Genera 3 recomendaciones breves y accionables para el dueño de la pulpería.
-      Enfócate en:
-      1. Qué productos reabastecer (stock bajo).
-      2. Qué productos tienen alta rotación.
-      3. Una sugerencia breve para mejorar las ventas.
+Genera 3 recomendaciones breves y accionables para el dueño de la pulpería.
+Enfócate en:
+1. Qué productos reabastecer (stock bajo).
+2. Qué productos tienen alta rotación.
+3. Una sugerencia breve para mejorar las ventas.
 
-      Responde en español, de forma clara, directa y usando viñetas.
-      `;
+Responde en español, de forma clara, directa y usando viñetas.
+`;
 
-      // 3. Llamar al modelo Gemini (Google)
+      // 3. Llamar al modelo Gemini (Google) usando el modelo vigente y reintentos
       const model = this.genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
-      const result = await model.generateContent(prompt);
+      
+      // 👇 Usamos withRetry para manejar los picos de demanda
+      const result = await this.withRetry(() => model.generateContent(prompt));
       const response = await result.response;
       
       return { recommendation: response.text() };
@@ -67,32 +93,34 @@ export class AiService {
     }
   }
 
-   async getBusinessAnalysis(): Promise<{
-    summary: string;
-    insights: string[];
-    predictions: string[];
-  }> {
-    const products = await this.productsService.findAll();
-    const sales = await this.salesService.findAll();
-    const stats = await this.salesService.getStats();
+  // ==================== ANÁLISIS DEL NEGOCIO (Opcional) ====================
+  
+  async getBusinessAnalysis() {
+    try {
+      const products = await this.productsService.findAll();
+      const sales = await this.salesService.findAll();
+      const stats = await this.salesService.getStats();
 
-    const lowStockCount = products.filter(p => p.stock <= p.minStock).length;
-    const totalRevenue = sales.reduce((sum, s) => sum + Number(s.totalAmount), 0);
+      const lowStockCount = products.filter(p => p.stock <= p.minStock).length;
+      const totalRevenue = sales.reduce((sum, s) => sum + Number(s.totalAmount), 0);
 
-    return {
-      summary: `Tu negocio tiene ${products.length} productos registrados y ha generado C$${totalRevenue.toFixed(2)} en ${sales.length} ventas.`,
-      insights: [
-        `Hoy has vendido ${stats.todayCount} productos por C$${stats.todayRevenue.toFixed(2)}.`,
-        lowStockCount > 0
-          ? `Tienes ${lowStockCount} productos con stock bajo que requieren atención.`
-          : 'Todo tu inventario tiene stock suficiente.',
-        `Tu producto más vendido es "${products[0]?.name || 'N/A'}".`,
-      ],
-      predictions: [
-        'Basado en las ventas recientes, se espera un aumento en la demanda.',
-        'Considera reabastecer los productos de alta rotación.',
-        'Mantén un control diario del inventario para evitar desabastecimiento.',
-      ],
-    };
+      return {
+        summary: `Tu negocio tiene ${products.length} productos registrados y ha generado C$${totalRevenue.toFixed(2)} en ${sales.length} ventas.`,
+        insights: [
+          `Hoy has vendido ${stats.todayCount} productos por C$${stats.todayRevenue.toFixed(2)}.`,
+          lowStockCount > 0
+            ? `Tienes ${lowStockCount} productos con stock bajo que requieren atención.`
+            : 'Todo tu inventario tiene stock suficiente.',
+        ],
+        predictions: [
+          'Basado en las ventas recientes, se espera un aumento en la demanda.',
+          'Considera reabastecer los productos de alta rotación.',
+          'Mantén un control diario del inventario para evitar desabastecimiento.',
+        ],
+      };
+    } catch (error) {
+      console.error('Error en análisis de IA:', error);
+      throw new InternalServerErrorException('Error generando análisis');
+    }
   }
-}   
+}
