@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Benchmarking - Pulperia POS</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; background-color: #f9fafb; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px; }
+        h2 { color: #374151; margin-top: 30px; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
+        th { background-color: #059669; color: white; }
+        tr:nth-child(even) { background-color: #f3f4f6; }
+        .metric { display: inline-block; margin: 20px 40px 20px 0; background: #ecfdf5; padding: 20px; border-radius: 8px; border-left: 4px solid #059669; }
+        .metric-value { font-size: 32px; font-weight: bold; color: #059669; }
+        .metric-label { font-size: 14px; color: #6b7280; font-weight: bold; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reporte de Benchmarking - Pulperia POS</h1>
+        <p><strong>Fecha:</strong> 19/10/2026 23:17</p>
+        <p><strong>Servidor URL:</strong> https://pulperia-production.up.railway.app/api</p>
+        <p><strong>Iteraciones por endpoint:</strong> 20</p>
+        
+        <h2>Resumen General</h2>
+        <div class="metric">
+            <div class="metric-value">119.02 ms</div>
+            <div class="metric-label">Latencia Promedio</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value">7</div>
+            <div class="metric-label">Endpoints Medidos</div>
+        </div>
+
+        <h2>Resultados por Endpoint</h2>
+        <table>
+            <tr>
+                <th>Endpoint</th>
+                <th>Promedio (ms)</th>
+                <th>Mediana (ms)</th>
+                <th>Minimo (ms)</th>
+                <th>Maximo (ms)</th>
+                <th>Desviacion</th>
+                <th>Exitosos</th>
+            </tr>            <tr>
+                <td>POST /auth/login</td>
+                <td>230.93</td>
+                <td>229.21</td>
+                <td>223.51</td>
+                <td>244.51</td>
+                <td>5.73</td>
+                <td>20/20</td>
+            </tr>            <tr>
+                <td>GET /products</td>
+                <td>113.67</td>
+                <td>113.44</td>
+                <td>111.01</td>
+                <td>118.78</td>
+                <td>1.95</td>
+                <td>20/20</td>
+            </tr>            <tr>
+                <td>GET /products/low-stock</td>
+                <td>94.26</td>
+                <td>93.8</td>
+                <td>92.74</td>
+                <td>98.13</td>
+                <td>1.55</td>
+                <td>20/20</td>
+            </tr>            <tr>
+                <td>GET /sales</td>
+                <td>101.8</td>
+                <td>101.22</td>
+                <td>98.29</td>
+                <td>110.49</td>
+                <td>3.66</td>
+                <td>20/20</td>
+            </tr>            <tr>
+                <td>GET /sales/stats</td>
+                <td>94.92</td>
+                <td>93.92</td>
+                <td>92.29</td>
+                <td>105.09</td>
+                <td>2.86</td>
+                <td>20/20</td>
+            </tr>            <tr>
+                <td>GET /sales/today</td>
+                <td>95.94</td>
+                <td>95.04</td>
+                <td>92.35</td>
+                <td>106.39</td>
+                <td>3.04</td>
+                <td>20/20</td>
+            </tr>            <tr>
+                <td>GET /ai/recommendations</td>
+                <td>101.64</td>
+                <td>100.35</td>
+                <td>97.99</td>
+                <td>114.54</td>
+                <td>3.84</td>
+                <td>20/20</td>
+            </tr>        </table>
+        
+        <h2>Analisis Tecnico</h2>
+        <p>Los endpoints de autenticaciÃ³n y consulta de datos presentan tiempos promedio de 119.02 ms, lo cual es aceptable para aplicaciones mÃ³viles que operan sobre redes 4G/WiFi.</p>
+        <p>La desviaciÃ³n estÃ¡ndar indica la estabilidad del servidor. Valores menores a 50 ms sugieren un rendimiento consistente.</p>
+        
+        <h2>Recomendaciones</h2>
+        <ul>
+            <li>Optimizar endpoints con tiempos superiores a 300 ms (usualmente los relacionados con IA o consultas complejas).</li>
+            <li>Implementar cachÃ© local en el cliente para consultas frecuentes.</li>
+            <li>Considerar paginaciÃ³n para listados grandes de productos o ventas.</li>
+        </ul>
+    </div>
+</body>
+</html>
