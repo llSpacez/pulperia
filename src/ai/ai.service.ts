@@ -55,7 +55,7 @@ export class AiService {
       `;
 
       // 3. Llamar al modelo Gemini (Google)
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
       const result = await model.generateContent(prompt);
       const response = await result.response;
       
