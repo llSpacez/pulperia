@@ -73,8 +73,19 @@ export class SalesService {
       await this.clientsService.addPoints(clientId, finalTotal);
     }
 
-    return savedSale;
+    const result = await this.salesRepository.findOne({
+      where: { id: savedSale.id },
+      relations: { items: true, client: true },
+    });
+
+    if (!result) {
+      throw new NotFoundException(`Venta con ID ${savedSale.id} no encontrada`);
+    }
+
+    return result;
   }
+
+  
 
   async findAll(): Promise<Sale[]> {
     return this.salesRepository.find({
