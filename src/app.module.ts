@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { SalesModule } from './sales/sales.module';
 import { AiModule } from './ai/ai.module';
+import { ClientsModule } from './clients/clients.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AiModule } from './ai/ai.module';
     ProductsModule,
     SalesModule,
     AiModule,
+    ClientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

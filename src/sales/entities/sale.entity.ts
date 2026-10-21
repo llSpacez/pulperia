@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { SaleItem } from './sale-item.entity';
+import { Client } from '../../clients/entities/client.entity';
 
 export enum PaymentMethod {
   CASH = 'CASH',
@@ -40,4 +41,11 @@ export class Sale {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ nullable: true })
+  clientId: number;
+
+  @ManyToOne(() => Client, { nullable: true })
+  @JoinColumn({ name: 'clientId' })
+  client: Client;
 }

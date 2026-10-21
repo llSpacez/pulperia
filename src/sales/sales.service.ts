@@ -5,6 +5,7 @@ import { Sale, PaymentMethod } from './entities/sale.entity';
 import { SaleItem } from './entities/sale-item.entity';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { ProductsService } from '../products/products.service';
+import { ClientsService } from '../clients/clients.service';
 
 @Injectable()
 export class SalesService {
@@ -14,6 +15,7 @@ export class SalesService {
     @InjectRepository(SaleItem)
     private saleItemsRepository: Repository<SaleItem>,
     private productsService: ProductsService,
+    private clientsService: ClientsService,
   ) {}
 
   async create(createSaleDto: CreateSaleDto, userId: number): Promise<Sale> {
@@ -64,7 +66,14 @@ export class SalesService {
       items,
     });
 
-    return this.salesRepository.save(sale);
+    const savedSale = await this.salesRepository.save(sale);
+
+    const clientId = (createSaleDto as CreateSaleDto & { clientId?: number }).clientId;
+    if (clientId) {
+      await this.clientsService.addPoints(clientId, finalTotal);
+    }
+
+    return savedSale;
   }
 
   async findAll(): Promise<Sale[]> {

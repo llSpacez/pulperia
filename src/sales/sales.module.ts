@@ -9,11 +9,13 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
+import { ClientsModule } from '../clients/clients.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Sale, SaleItem]),
     ProductsModule,
+    ClientsModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
    JwtModule.registerAsync({
          imports: [ConfigModule],

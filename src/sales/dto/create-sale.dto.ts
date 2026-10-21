@@ -25,4 +25,8 @@ export class CreateSaleDto {
   @IsNumber()
   @IsOptional()
   discountAmount?: number;
+
+  @IsNumber()
+  @IsOptional()
+  clientId?: number;
 }
