@@ -16,4 +16,9 @@ export class ClientsController {
   findByPhone(@Param('phone') phone: string) {
     return this.clientsService.findByPhone(phone);
   }
+
+  @Get()
+  findAll() {
+    return this.clientsService.findAll();
+  }
 }
