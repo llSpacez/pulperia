@@ -40,7 +40,7 @@ export class ClientsService {
 
   async findAll(): Promise<Client[]> {
     return this.clientsRepository.find({
-      order: { points: 'DESC' }, // Los que tienen más puntos salen primero
+      order: { points: 'DESC' },// Los que tienen más puntos salen primero
     });
   }
 }
