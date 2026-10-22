@@ -68,15 +68,18 @@ export class SalesService {
 
     const savedSale = await this.salesRepository.save(sale);
 
-    const clientId = (createSaleDto as CreateSaleDto & { clientId?: number }).clientId;
-    if (clientId) {
-      await this.clientsService.addPoints(clientId, finalTotal);
+    if (createSaleDto.clientId) {
+      await this.clientsService.addPoints(createSaleDto.clientId, finalTotal);
     }
-
+    // Devolver la venta con el cliente incluido
     const result = await this.salesRepository.findOne({
       where: { id: savedSale.id },
       relations: { items: true, client: true },
     });
+
+    if (createSaleDto.clientId && createSaleDto.paymentMethod === PaymentMethod.CARD) {
+      await this.clientsService.addPoints(createSaleDto.clientId, finalTotal);
+    }
 
     if (!result) {
       throw new NotFoundException(`Venta con ID ${savedSale.id} no encontrada`);
@@ -84,8 +87,6 @@ export class SalesService {
 
     return result;
   }
-
-  
 
   async findAll(): Promise<Sale[]> {
     return this.salesRepository.find({

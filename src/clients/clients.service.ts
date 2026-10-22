@@ -27,8 +27,8 @@ export class ClientsService {
     const client = await this.clientsRepository.findOne({ where: { id: clientId } });
     if (!client) throw new NotFoundException('Cliente no encontrado');
 
-    // 🎁 REGLA DE NEGOCIO: 1 punto por cada C$100 de compra
-    const pointsEarned = Math.floor(purchaseAmount / 100);
+    // 🎁 REGLA DE NEGOCIO: 1 punto por cada C$1000 de compra
+    const pointsEarned = Math.floor(purchaseAmount / 1000);
     
     client.points += pointsEarned;
     client.totalPurchases += 1;
