@@ -23,17 +23,20 @@ export class ClientsService {
     return this.clientsRepository.findOne({ where: { phone } });
   }
 
-  async addPoints(clientId: number, purchaseAmount: number): Promise<Client> {
+   async addPoints(clientId: number, purchaseAmount: number): Promise<Client> {
     const client = await this.clientsRepository.findOne({ where: { id: clientId } });
     if (!client) throw new NotFoundException('Cliente no encontrado');
 
-    // 🎁 REGLA DE NEGOCIO: 1 punto por cada C$1000 de compra
-    const pointsEarned = Math.floor(purchaseAmount / 1000);
+    // REGLA: 1 punto por cada C$100
+    const pointsEarned = Math.floor(purchaseAmount / 100);
     
-    client.points += pointsEarned;
+    // Si la compra fue menor a 100, no gana puntos
+    if (pointsEarned > 0) {
+      client.points += pointsEarned;
+    }
+    
     client.totalPurchases += 1;
     
-    // Si tiene más de 5 compras, es cliente frecuente
     if (client.totalPurchases >= 5) client.isFrequent = true;
 
     return this.clientsRepository.save(client);
