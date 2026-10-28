@@ -60,26 +60,26 @@ export class AiService {
 
       // 2. Crear el prompt
       const prompt = `
-Eres un asistente experto en gestión de pulperías en Nicaragua.
-Analiza los siguientes datos del negocio:
+      Eres un asistente experto en gestión de pulperías en Nicaragua.
+      Analiza los siguientes datos del negocio:
 
-PRODUCTOS:
-${productsSummary}
+      PRODUCTOS:
+      ${productsSummary}
 
-VENTAS RECIENTES:
-${salesSummary}
+      VENTAS RECIENTES:
+      ${salesSummary}
 
-Genera 3 recomendaciones breves y accionables para el dueño de la pulpería.
-Enfócate en:
-1. Qué productos reabastecer (stock bajo).
-2. Qué productos tienen alta rotación.
-3. Una sugerencia breve para mejorar las ventas.
+      Genera 3 recomendaciones breves y accionables para el dueño de la pulpería.
+      Enfócate en:
+      1. Qué productos reabastecer (stock bajo).
+      2. Qué productos tienen alta rotación.
+      3. Una sugerencia breve para mejorar las ventas.
 
-Responde en español, de forma clara, directa y usando viñetas.
-`;
+      Responde en español, de forma clara, directa y usando viñetas.
+      `;
 
       // 3. Llamar al modelo Gemini (Google) usando el modelo vigente y reintentos
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
       
       // 👇 Usamos withRetry para manejar los picos de demanda
       const result = await this.withRetry(() => model.generateContent(prompt));
